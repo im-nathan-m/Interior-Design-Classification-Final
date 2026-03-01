@@ -47,7 +47,6 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 # ------------ Step 3. Data Info ------------
-
 for i, class_name in enumerate(train_dataset.classes, start=1):
     print(f"{i}. {class_name}")
 
@@ -63,7 +62,10 @@ for name, loader in loaders.items():
     print(f"\n{name} BATCH")
     
     # prints one batch per loader
+    # test & val aren't shuffled so class labels are all 0
     for inputs, targets in loader:
+        print("INPUTS")
         print(inputs)
+        print("CLASS LABELS (TARGETS)")
         print(targets)
         break
