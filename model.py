@@ -67,10 +67,10 @@ for name, loader in loaders.items():
         print(targets)
         break
 
-# ------------ Step 3. Model Init ------------
+# ------------ Step 3. Model Class ------------
 class ConvNet(nn.Module):
     def __init__(self):
-        super().__init__
+        super().__init__()
         self.conv1 = nn.Conv2d(3, 32, 3, 1, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1, 1)
         self.conv3 = nn.Conv2d(64, 128, 3, 1, 1)
