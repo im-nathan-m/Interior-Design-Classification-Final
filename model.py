@@ -87,3 +87,49 @@ class ConvNet(nn.Module):
         X = X.flatten(start_dim=1)
         output = self.fc1(X)
         return output
+
+model = ConvNet()
+model.train()
+
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+NUM_EPOCHS = 20
+
+
+# ------------ Step 4. Training Loop ------------
+for epoch in range(NUM_EPOCHS):
+    
+    train_correct = 0
+
+    for train_x, train_y in train_loader:
+        ### Get inputs and outputs in batches using the training DataLoader
+        train_preds = model(train_x)
+        loss = criterion(train_preds, train_y.unsqueeze(1))
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        class_preds = train_preds > 0
+        train_correct += (class_preds.squeeze() == train_y).sum()
+    
+    train_accuracy = train_correct / len(train_dataset)
+
+    ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
+    print(f"Epoch {epoch+1} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
+
+
+    ### Include loop for validation dataset here.
+    val_correct = 0
+
+    for val_x, val_y in val_loader:
+        ### Get inputs and outputs in batches using the validation DataLoader
+        val_preds = model(val_x)
+        loss = criterion(val_preds, val_y.unsqueeze(1))
+
+        class_preds = val_preds > 0
+        val_correct += (class_preds.squeeze() == val_y).sum()
+    
+    val_accuracy = val_correct / len(val_dataset)
+
+    ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
+    print(f"Epoch {epoch+1} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
