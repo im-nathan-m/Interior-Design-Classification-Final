@@ -78,3 +78,12 @@ class ConvNet(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.linear1 = nn.Linear(32 * 32 * 256, 19)
         self.relu = nn.Relu()
+
+    def forward(self, X):
+        X = self.pool(self.relu(self.conv1(X)))
+        X = self.pool(self.relu(self.conv2(X)))
+        X = self.relu(self.conv3(X))
+        X = self.relu(self.conv4(X))
+        X = X.flatten(start_dim=1)
+        output = self.fc1(X)
+        return output
