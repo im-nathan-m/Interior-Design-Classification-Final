@@ -44,28 +44,29 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 # ------------ Step 2. Data Info ------------
-for i, class_name in enumerate(train_dataset.classes, start=1):
-    print(f"{i}. {class_name}")
+def data_info():
+    for i, class_name in enumerate(train_dataset.classes, start=1):
+        print(f"{i}. {class_name}")
 
-print("Train/Val/Test sizes:", len(train_dataset), len(val_dataset), len(test_dataset))
+    print("Train/Val/Test sizes:", len(train_dataset), len(val_dataset), len(test_dataset))
 
-loaders = {
-    "TRAIN": train_loader,
-    "VAL": val_loader,
-    "TEST": test_loader
-}
+    loaders = {
+        "TRAIN": train_loader,
+        "VAL": val_loader,
+        "TEST": test_loader
+    }
 
-for name, loader in loaders.items():
-    print(f"\n{name} BATCH")
-    
-    # prints one batch per loader
-    # test & val aren't shuffled so class labels are all 0
-    for inputs, targets in loader:
-        print("INPUTS")
-        print(inputs)
-        print("CLASS LABELS (TARGETS)")
-        print(targets)
-        break
+    for name, loader in loaders.items():
+        print(f"\n{name} BATCH")
+        
+        # prints one batch per loader
+        # test & val aren't shuffled so class labels are all 0
+        for inputs, targets in loader:
+            print("INPUTS")
+            print(inputs)
+            print("CLASS LABELS (TARGETS)")
+            print(targets)
+            break
 
 # ------------ Step 3. Model Class ------------
 class ConvNet(nn.Module):
