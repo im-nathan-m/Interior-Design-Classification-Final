@@ -85,13 +85,13 @@ class ConvNet(nn.Module):
         X = self.relu(self.conv3(X))
         X = self.relu(self.conv4(X))
         X = X.flatten(start_dim=1)
-        output = self.fc1(X)
+        output = self.linear1(X)
         return output
 
 model = ConvNet()
 model.train()
 
-criterion = nn.BCEWithLogitsLoss()
+criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 NUM_EPOCHS = 20
 
