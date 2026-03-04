@@ -77,7 +77,7 @@ class ConvNet(nn.Module):
         self.conv4 = nn.Conv2d(128, 256, 3, 1, 1)
         self.pool = nn.MaxPool2d(2, 2)
         self.linear1 = nn.Linear(32 * 32 * 256, 19)
-        self.relu = nn.Relu()
+        self.relu = nn.ReLU()
 
     def forward(self, X):
         X = self.pool(self.relu(self.conv1(X)))
