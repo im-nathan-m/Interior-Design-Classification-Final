@@ -11,10 +11,7 @@ from torchvision import datasets, models
 BATCH_SIZE = 100
 ROOT_DIR = "archive"
 
-# ------------ Step 1. Data Visualization ------------
-pass
-
-# ------------ Step 2. Data Preprocessing ------------
+# ------------ Step 1. Data Preprocessing ------------
 train_transforms = v2.Compose([
     v2.Resize((128, 128)),
     v2.RandomHorizontalFlip(p=0.5),
@@ -46,7 +43,7 @@ train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-# ------------ Step 3. Data Info ------------
+# ------------ Step 2. Data Info ------------
 for i, class_name in enumerate(train_dataset.classes, start=1):
     print(f"{i}. {class_name}")
 
@@ -69,3 +66,15 @@ for name, loader in loaders.items():
         print("CLASS LABELS (TARGETS)")
         print(targets)
         break
+
+# ------------ Step 3. Model Init ------------
+class ConvNet(nn.Module):
+    def __init__(self):
+        super().__init__
+        self.conv1 = nn.Conv2d(3, 32, 3, 1, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1, 1)
+        self.conv3 = nn.Conv2d(64, 128, 3, 1, 1)
+        self.conv4 = nn.Conv2d(128, 256, 3, 1, 1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.linear1 = nn.Linear(32 * 32 * 256, 19)
+        self.relu = nn.Relu()
