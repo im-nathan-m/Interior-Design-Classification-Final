@@ -9,6 +9,8 @@ from torchvision.transforms import v2
 from torchvision import datasets, models
 
 BATCH_SIZE = 100
+NUM_EPOCHS = 20
+LEARNING_RATE = 0.01
 ROOT_DIR = "archive"
 
 # ------------ Step 1. Data Preprocessing ------------
@@ -89,48 +91,44 @@ class ConvNet(nn.Module):
         output = self.linear1(X)
         return output
 
+# ------------ Step 4. Training & Validation Loop ------------
 model = ConvNet()
-model.train()
-
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
-NUM_EPOCHS = 20
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-
-# ------------ Step 4. Training Loop ------------
 for epoch in range(NUM_EPOCHS):
-    
     train_correct = 0
 
-    for train_x, train_y in train_loader:
+    for batch_idx, (train_x, train_y) in enumerate(train_loader):
+        print(batch_idx, train_x.shape, train_y.shape)
         ### Get inputs and outputs in batches using the training DataLoader
         train_preds = model(train_x)
-        loss = criterion(train_preds, train_y.unsqueeze(1))
+        loss = criterion(train_preds, train_y)
+
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        class_preds = train_preds > 0
-        train_correct += (class_preds.squeeze() == train_y).sum()
-    
+        class_preds = train_preds.argmax(dim=1)  # returns the largest value in each tensor row
+        train_correct += (class_preds == train_y).sum().item()
+
     train_accuracy = train_correct / len(train_dataset)
 
     ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
-    print(f"Epoch {epoch+1} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
+    print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
 
-
-    ### Include loop for validation dataset here.
     val_correct = 0
 
-    for val_x, val_y in val_loader:
-        ### Get inputs and outputs in batches using the validation DataLoader
-        val_preds = model(val_x)
-        loss = criterion(val_preds, val_y.unsqueeze(1))
+    with torch.no_grad():
+        for batch_idx, (val_x, val_y) in enumerate(val_loader):
+            ### Get inputs and outputs in batches using the validation DataLoader
+            val_preds = model(val_x)
+            loss = criterion(val_preds, val_y)
 
-        class_preds = val_preds > 0
-        val_correct += (class_preds.squeeze() == val_y).sum()
-    
+            class_preds = val_preds.argmax(dim=1)
+            val_correct += (class_preds == val_y).sum().item()
+
     val_accuracy = val_correct / len(val_dataset)
 
     ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
-    print(f"Epoch {epoch+1} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
+    print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
