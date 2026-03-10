@@ -13,6 +13,15 @@ NUM_EPOCHS = 20
 LEARNING_RATE = 0.01
 ROOT_DIR = "archive"
 
+# ------------ Step 0. GPU ------------
+if torch.cuda.is_available():
+	device = 'cuda'
+	print('CUDA is available. Using GPU.')
+else:
+	device = 'cpu'
+
+
+
 # ------------ Step 1. Data Preprocessing ------------
 train_transforms = v2.Compose([
     v2.Resize((128, 128)),
@@ -97,6 +106,7 @@ class ConvNet(nn.Module):
 
 # ------------ Step 4. Training & Validation Loop ------------
 model = ConvNet()
+model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
