@@ -78,8 +78,10 @@ class ConvNet(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, 3, 1, 1)
         self.conv3 = nn.Conv2d(64, 128, 3, 1, 1)
         self.conv4 = nn.Conv2d(128, 256, 3, 1, 1)
+        self.conv5 = nn.Conv2d(256, 512, 3, 1, 1)
+        self.conv6 = nn.Conv2d(512, 1024, 3, 1, 1)
         self.pool = nn.MaxPool2d(2, 2)
-        self.linear1 = nn.Linear(32 * 32 * 256, 19)
+        self.linear1 = nn.Linear(32 * 32 * 1024, 19)
         self.relu = nn.ReLU()
 
     def forward(self, X):
@@ -87,6 +89,8 @@ class ConvNet(nn.Module):
         X = self.pool(self.relu(self.conv2(X)))
         X = self.relu(self.conv3(X))
         X = self.relu(self.conv4(X))
+        X = self.relu(self.conv5(X))
+        X = self.relu(self.conv6(X))
         X = X.flatten(start_dim=1)
         output = self.linear1(X)
         return output
