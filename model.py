@@ -105,6 +105,7 @@ for epoch in range(NUM_EPOCHS):
 
     for batch_idx, (train_x, train_y) in enumerate(train_loader):
         ### Get inputs and outputs in batches using the training DataLoader
+        print(f"Batch {batch_idx}")
         train_preds = model(train_x)
         loss = criterion(train_preds, train_y)
 
@@ -115,26 +116,27 @@ for epoch in range(NUM_EPOCHS):
         class_preds = train_preds.argmax(dim=1)  # returns the largest value in each tensor row
         train_correct += (class_preds == train_y).sum().item()
 
-        train_accuracy = train_correct / len(train_dataset)
+    train_accuracy = train_correct / len(train_dataset)
 
-        ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
-        print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
+    ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
+    print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
 
     val_correct = 0
 
     with torch.no_grad():
         for batch_idx, (val_x, val_y) in enumerate(val_loader):
             ### Get inputs and outputs in batches using the validation DataLoader
+            print(f"Batch {batch_idx}")
             val_preds = model(val_x)
             loss = criterion(val_preds, val_y)
 
             class_preds = val_preds.argmax(dim=1)
             val_correct += (class_preds == val_y).sum().item()
 
-            val_accuracy = val_correct / len(val_dataset)
+        val_accuracy = val_correct / len(val_dataset)
 
-            ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
-            print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
+        ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
+        print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
 
 # ------------ Step 5. Testing Phase ------------
 test_correct = 0
@@ -142,13 +144,14 @@ test_correct = 0
 with torch.no_grad():
     for batch_idx, (test_x, test_y) in enumerate(test_loader):
         ### Get inputs and outputs in batches using the test DataLoader
+        print(f"Batch {batch_idx}")
         test_preds = model(test_x)
         loss = criterion(test_preds, test_y)
 
         class_preds = test_preds.argmax(dim=1)
         test_correct += (class_preds == test_y).sum().item()
 
-        test_accuracy = test_correct / len(test_dataset)
+    test_accuracy = test_correct / len(test_dataset)
 
-        ### Calculate the batch accuracy for testing
-        print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
+    ### Calculate the batch accuracy for testing
+    print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
