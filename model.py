@@ -10,7 +10,7 @@ from torchvision import datasets, models
 
 BATCH_SIZE = 100
 NUM_EPOCHS = 20
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.003
 ROOT_DIR = "archive"
 
 # ------------ Step 0. GPU ------------
@@ -19,8 +19,6 @@ if torch.cuda.is_available():
 	print('CUDA is available. Using GPU.')
 else:
 	device = 'cpu'
-
-
 
 # ------------ Step 1. Data Preprocessing ------------
 train_transforms = v2.Compose([
@@ -90,14 +88,14 @@ class ConvNet(nn.Module):
         self.conv5 = nn.Conv2d(256, 512, 3, 1, 1)
         self.conv6 = nn.Conv2d(512, 1024, 3, 1, 1)
         self.pool = nn.MaxPool2d(2, 2)
-        self.linear1 = nn.Linear(32 * 32 * 1024, 19)
+        self.linear1 = nn.Linear(1024 * 8 * 8, 19)
         self.relu = nn.ReLU()
 
     def forward(self, X):
         X = self.pool(self.relu(self.conv1(X)))
         X = self.pool(self.relu(self.conv2(X)))
-        X = self.relu(self.conv3(X))
-        X = self.relu(self.conv4(X))
+        X = self.pool(self.relu(self.conv3(X)))
+        X = self.pool(self.relu(self.conv4(X)))
         X = self.relu(self.conv5(X))
         X = self.relu(self.conv6(X))
         X = X.flatten(start_dim=1)
@@ -116,6 +114,10 @@ for epoch in range(NUM_EPOCHS):
     for batch_idx, (train_x, train_y) in enumerate(train_loader):
         ### Get inputs and outputs in batches using the training DataLoader
         print(f"Batch {batch_idx}")
+
+        train_x = train_x.to(device)
+        train_y = train_y.to(device)
+
         train_preds = model(train_x)
         loss = criterion(train_preds, train_y)
 
@@ -137,6 +139,10 @@ for epoch in range(NUM_EPOCHS):
         for batch_idx, (val_x, val_y) in enumerate(val_loader):
             ### Get inputs and outputs in batches using the validation DataLoader
             print(f"Batch {batch_idx}")
+
+            val_x = val_x.to(device)
+            val_y = val_y.to(device)
+
             val_preds = model(val_x)
             loss = criterion(val_preds, val_y)
 
@@ -155,6 +161,10 @@ with torch.no_grad():
     for batch_idx, (test_x, test_y) in enumerate(test_loader):
         ### Get inputs and outputs in batches using the test DataLoader
         print(f"Batch {batch_idx}")
+
+        test_x = test_x.to(device)
+        test_y = test_y.to(device)
+
         test_preds = model(test_x)
         loss = criterion(test_preds, test_y)
 
