@@ -6,8 +6,8 @@ from torchvision.transforms import v2
 from torchvision import datasets
 
 BATCH_SIZE = 100
-NUM_EPOCHS = 20
-LEARNING_RATE = 0.003
+NUM_EPOCHS = 50
+LEARNING_RATE = 0.0003
 ROOT_DIR = "archive"
 
 # ------------ Step 0. GPU ------------
