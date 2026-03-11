@@ -1,12 +1,9 @@
-import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report, confusion_matrix
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2
-from torchvision import datasets, models
+from torchvision import datasets
 
 BATCH_SIZE = 100
 NUM_EPOCHS = 20
