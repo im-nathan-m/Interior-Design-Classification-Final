@@ -10,6 +10,7 @@ NUM_EPOCHS = 50
 LEARNING_RATE = 0.0003
 WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
+SAVE_PATH = "model-v1.pt"
 
 # ------------ Step 0. GPU ------------
 if torch.cuda.is_available():
@@ -184,3 +185,5 @@ with torch.no_grad():
 
     ### Calculate the batch accuracy for testing
     print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
+
+torch.save(model.state_dict(), SAVE_PATH)
