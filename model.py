@@ -8,6 +8,7 @@ from torchvision import datasets
 BATCH_SIZE = 100
 NUM_EPOCHS = 50
 LEARNING_RATE = 0.0003
+WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
 
 # ------------ Step 0. GPU ------------
@@ -87,6 +88,7 @@ class ConvNet(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.linear1 = nn.Linear(1024 * 8 * 8, 19)
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, X):
         X = self.pool(self.relu(self.conv1(X)))
@@ -96,6 +98,7 @@ class ConvNet(nn.Module):
         X = self.relu(self.conv5(X))
         X = self.relu(self.conv6(X))
         X = X.flatten(start_dim=1)
+        X = self.dropout(X)
         output = self.linear1(X)
         return output
 
@@ -103,9 +106,10 @@ class ConvNet(nn.Module):
 model = ConvNet()
 model.to(device)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
 
 for epoch in range(NUM_EPOCHS):
+    model.train()
     train_correct = 0
 
     for batch_idx, (train_x, train_y) in enumerate(train_loader):
@@ -130,6 +134,7 @@ for epoch in range(NUM_EPOCHS):
     ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
     print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
 
+    model.eval()
     val_correct = 0
 
     with torch.no_grad():
@@ -152,6 +157,7 @@ for epoch in range(NUM_EPOCHS):
         print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
 
 # ------------ Step 5. Testing Phase ------------
+model.eval()
 test_correct = 0
 
 with torch.no_grad():
