@@ -7,7 +7,7 @@ from torchvision import datasets
 
 BATCH_SIZE = 100
 NUM_EPOCHS = 50
-LEARNING_RATE = 0.0003
+LEARNING_RATE = 0.003
 WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
 SAVE_PATH = "model-v1.pt"
