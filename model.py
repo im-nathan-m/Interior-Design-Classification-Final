@@ -10,7 +10,7 @@ NUM_EPOCHS = 50
 LEARNING_RATE = 0.003
 WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
-SAVE_PATH = "model-v2.pt"
+SAVE_PATH = "model-v3.pt"
 
 # ------------ Step 2. Data Info ------------
 def data_info():
@@ -110,6 +110,10 @@ if __name__ == "__main__":
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
 
+
+    train_accuracies = []
+    val_accuracies = []
+
     # ------------ Step 4. Training & Validation Loop ------------
     model = ConvNet()
     model.to(device)
@@ -138,6 +142,7 @@ if __name__ == "__main__":
             train_correct += (class_preds == train_y).sum().item()
 
         train_accuracy = train_correct / len(train_dataset)
+        train_accuracies.append(train_accuracy)
 
         ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
         print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
@@ -160,6 +165,7 @@ if __name__ == "__main__":
                 val_correct += (class_preds == val_y).sum().item()
 
             val_accuracy = val_correct / len(val_dataset)
+            val_accuracies.append(val_accuracy)
 
             ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
             print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
@@ -188,3 +194,9 @@ if __name__ == "__main__":
         print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
 
     torch.save(model.state_dict(), SAVE_PATH)
+
+
+print("Epoch \t Train \t\t Val")
+
+for i in range(NUM_EPOCHS):
+    print(f"{i} \t {train_accuracies[i]} \t {val_accuracies[i]}")
