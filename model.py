@@ -12,45 +12,6 @@ WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
 SAVE_PATH = "model-v1.pt"
 
-# ------------ Step 0. GPU ------------
-if torch.cuda.is_available():
-	device = 'cuda'
-	print('CUDA is available. Using GPU.')
-else:
-	device = 'cpu'
-
-# ------------ Step 1. Data Preprocessing ------------
-train_transforms = v2.Compose([
-    v2.Resize((128, 128)),
-    v2.RandomHorizontalFlip(p=0.5),
-    v2.RandomRotation(5),
-    v2.RandomAffine(
-    degrees=0,
-    translate=(0.05, 0.05),
-    scale=(0.95, 1.05),
-    ),
-    v2.ColorJitter(
-    brightness=0.3,
-    contrast=0.3,
-    saturation=0.2,
-    hue=0.03
-    ),
-    v2.ToTensor()
-])
-
-test_transforms = v2.Compose([
-    v2.Resize((128, 128)),
-    v2.ToTensor()
-])
-
-train_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_train', transform=train_transforms)
-val_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_val', transform=test_transforms)
-test_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_test', transform=test_transforms)
-
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=16, pin_memory=True)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
-test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
-
 # ------------ Step 2. Data Info ------------
 def data_info():
     for i, class_name in enumerate(train_dataset.classes, start=1):
@@ -109,81 +70,121 @@ class ConvNet(nn.Module):
         output = self.linear1(X)
         return output
 
-# ------------ Step 4. Training & Validation Loop ------------
-model = ConvNet()
-model.to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
+if __name__ == "__main__":
+    # ------------ Step 0. GPU ------------
+    if torch.cuda.is_available():
+        device = 'cuda'
+        print('CUDA is available. Using GPU.')
+    else:
+        device = 'cpu'
 
-for epoch in range(NUM_EPOCHS):
-    model.train()
-    train_correct = 0
+    # ------------ Step 1. Data Preprocessing ------------
+    train_transforms = v2.Compose([
+        v2.Resize((128, 128)),
+        v2.RandomHorizontalFlip(p=0.5),
+        v2.RandomRotation(5),
+        v2.RandomAffine(
+        degrees=0,
+        translate=(0.05, 0.05),
+        scale=(0.95, 1.05),
+        ),
+        v2.ColorJitter(
+        brightness=0.3,
+        contrast=0.3,
+        saturation=0.2,
+        hue=0.03
+        ),
+        v2.ToTensor()
+    ])
 
-    for batch_idx, (train_x, train_y) in enumerate(train_loader):
-        ### Get inputs and outputs in batches using the training DataLoader
-        print(f"Batch {batch_idx}")
+    test_transforms = v2.Compose([
+        v2.Resize((128, 128)),
+        v2.ToTensor()
+    ])
 
-        train_x = train_x.to(device)
-        train_y = train_y.to(device)
+    train_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_train', transform=train_transforms)
+    val_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_val', transform=test_transforms)
+    test_dataset = datasets.ImageFolder(root=f'{ROOT_DIR}/dataset_test', transform=test_transforms)
 
-        train_preds = model(train_x)
-        loss = criterion(train_preds, train_y)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=16, pin_memory=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=16, pin_memory=True)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    # ------------ Step 4. Training & Validation Loop ------------
+    model = ConvNet()
+    model.to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
 
-        class_preds = train_preds.argmax(dim=1)  # returns the largest value in each tensor row
-        train_correct += (class_preds == train_y).sum().item()
+    for epoch in range(NUM_EPOCHS):
+        model.train()
+        train_correct = 0
 
-    train_accuracy = train_correct / len(train_dataset)
-
-    ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
-    print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
-
-    model.eval()
-    val_correct = 0
-
-    with torch.no_grad():
-        for batch_idx, (val_x, val_y) in enumerate(val_loader):
-            ### Get inputs and outputs in batches using the validation DataLoader
+        for batch_idx, (train_x, train_y) in enumerate(train_loader):
+            ### Get inputs and outputs in batches using the training DataLoader
             print(f"Batch {batch_idx}")
 
-            val_x = val_x.to(device)
-            val_y = val_y.to(device)
+            train_x = train_x.to(device)
+            train_y = train_y.to(device)
 
-            val_preds = model(val_x)
-            loss = criterion(val_preds, val_y)
+            train_preds = model(train_x)
+            loss = criterion(train_preds, train_y)
 
-            class_preds = val_preds.argmax(dim=1)
-            val_correct += (class_preds == val_y).sum().item()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        val_accuracy = val_correct / len(val_dataset)
+            class_preds = train_preds.argmax(dim=1)  # returns the largest value in each tensor row
+            train_correct += (class_preds == train_y).sum().item()
 
-        ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
-        print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
+        train_accuracy = train_correct / len(train_dataset)
 
-# ------------ Step 5. Testing Phase ------------
-model.eval()
-test_correct = 0
+        ### Calculate the batch accuracy for training (see Week 5 Day 2 slides for reminder!)
+        print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(train_loader)} Training | Loss: {loss.item()} | Accuracy: {train_accuracy} | Correct: {train_correct}")
 
-with torch.no_grad():
-    for batch_idx, (test_x, test_y) in enumerate(test_loader):
-        ### Get inputs and outputs in batches using the test DataLoader
-        print(f"Batch {batch_idx}")
+        model.eval()
+        val_correct = 0
 
-        test_x = test_x.to(device)
-        test_y = test_y.to(device)
+        with torch.no_grad():
+            for batch_idx, (val_x, val_y) in enumerate(val_loader):
+                ### Get inputs and outputs in batches using the validation DataLoader
+                print(f"Batch {batch_idx}")
 
-        test_preds = model(test_x)
-        loss = criterion(test_preds, test_y)
+                val_x = val_x.to(device)
+                val_y = val_y.to(device)
 
-        class_preds = test_preds.argmax(dim=1)
-        test_correct += (class_preds == test_y).sum().item()
+                val_preds = model(val_x)
+                loss = criterion(val_preds, val_y)
 
-    test_accuracy = test_correct / len(test_dataset)
+                class_preds = val_preds.argmax(dim=1)
+                val_correct += (class_preds == val_y).sum().item()
 
-    ### Calculate the batch accuracy for testing
-    print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
+            val_accuracy = val_correct / len(val_dataset)
 
-torch.save(model.state_dict(), SAVE_PATH)
+            ### Calculate the batch accuracy for validation (see Week 5 Day 2 slides for reminder!)
+            print(f"Epoch {epoch+1} | Batch {batch_idx+1}/{len(val_loader)} Validation | Loss: {loss.item()} | Accuracy: {val_accuracy} | Correct: {val_correct}")
+
+    # ------------ Step 5. Testing Phase ------------
+    model.eval()
+    test_correct = 0
+
+    with torch.no_grad():
+        for batch_idx, (test_x, test_y) in enumerate(test_loader):
+            ### Get inputs and outputs in batches using the test DataLoader
+            print(f"Batch {batch_idx}")
+
+            test_x = test_x.to(device)
+            test_y = test_y.to(device)
+
+            test_preds = model(test_x)
+            loss = criterion(test_preds, test_y)
+
+            class_preds = test_preds.argmax(dim=1)
+            test_correct += (class_preds == test_y).sum().item()
+
+        test_accuracy = test_correct / len(test_dataset)
+
+        ### Calculate the batch accuracy for testing
+        print(f"Testing | Loss: {loss.item()} | Accuracy: {test_accuracy} | Correct: {test_correct}")
+
+    torch.save(model.state_dict(), SAVE_PATH)
