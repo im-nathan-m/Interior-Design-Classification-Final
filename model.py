@@ -6,11 +6,11 @@ from torchvision.transforms import v2
 from torchvision import datasets
 
 BATCH_SIZE = 100
-NUM_EPOCHS = 50
+NUM_EPOCHS = 100
 LEARNING_RATE = 0.0005
 WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
-SAVE_PATH = "model-v3.pt"
+SAVE_PATH = "model-v4.pt"
 
 # ------------ Step 2. Data Info ------------
 def data_info():
@@ -51,10 +51,10 @@ class ConvNet(nn.Module):
         self.batchNorm4 = nn.BatchNorm2d(256)
         self.conv5 = nn.Conv2d(256, 512, 3, 1, 1)
         self.batchNorm5 = nn.BatchNorm2d(512)
-        self.conv6 = nn.Conv2d(512, 1024, 3, 1, 1)
-        self.batchNorm6 = nn.BatchNorm2d(1024)
+        #self.conv6 = nn.Conv2d(512, 1024, 3, 1, 1)
+        #self.batchNorm6 = nn.BatchNorm2d(1024)
         self.pool = nn.MaxPool2d(2, 2)
-        self.linear1 = nn.Linear(1024 * 8 * 8, 19)
+        self.linear1 = nn.Linear(512 * 8 * 8, 19)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(p=0.1)
 
@@ -64,7 +64,7 @@ class ConvNet(nn.Module):
         X = self.pool(self.relu(self.batchNorm3(self.conv3(X))))
         X = self.pool(self.relu(self.batchNorm4(self.conv4(X))))
         X = self.relu(self.batchNorm5(self.conv5(X)))
-        X = self.relu(self.batchNorm6(self.conv6(X)))
+        #X = self.relu(self.batchNorm6(self.conv6(X)))
         X = X.flatten(start_dim=1)
         X = self.dropout(X)
         output = self.linear1(X)
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
     print(f"Learning Rate: {LEARNING_RATE}")
     print(f"Weight Decay: {WEIGHT_DECAY}")
-    print("Epoch \t Train \t\t\t\t Val")
+    print("Epoch \t Train \t\t\t Val")
 
     for i in range(NUM_EPOCHS):
         print(f"{i+1} \t {train_accuracies[i]} \t {val_accuracies[i]}")
