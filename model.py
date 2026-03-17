@@ -54,7 +54,7 @@ class ConvNet(nn.Module):
         self.conv6 = nn.Conv2d(512, 1024, 3, 1, 1)
         self.batchNorm6 = nn.BatchNorm2d(1024)
         self.pool = nn.MaxPool2d(2, 2)
-        self.linear1 = nn.Linear(512 * 8 * 8, 19)
+        self.linear1 = nn.Linear(1024 * 8 * 8, 19)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(p=0.1)
 
