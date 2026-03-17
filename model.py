@@ -7,7 +7,7 @@ from torchvision import datasets
 
 BATCH_SIZE = 100
 NUM_EPOCHS = 50
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0005
 WEIGHT_DECAY = 0.001
 ROOT_DIR = "archive"
 SAVE_PATH = "model-v3.pt"
@@ -195,8 +195,9 @@ if __name__ == "__main__":
 
     torch.save(model.state_dict(), SAVE_PATH)
 
-
-    print("Epoch \t Train \t\t Val")
+    print(f"Learning Rate: {LEARNING_RATE}")
+    print(f"Weight Decay: {WEIGHT_DECAY}")
+    print("Epoch \t Train \t\t\t\t Val")
 
     for i in range(NUM_EPOCHS):
-        print(f"{i} \t {train_accuracies[i]} \t {val_accuracies[i]}")
+        print(f"{i+1} \t {train_accuracies[i]} \t {val_accuracies[i]}")
